@@ -1,0 +1,124 @@
+
+## フォルダからfilepathを探す
+sort_filepath <- function(folder, testname){
+  folder %>% 
+    list.files(
+      pattern = str_c(testname, ".csv"), 
+      full.names = TRUE
+    )
+}
+
+## テストの情報を得る
+load_basicinfo <- function(path){
+  path %>% 
+    read_csv(
+      n_max = 30, 
+      col_names = FALSE,
+      locale = readr::locale(encoding = "cp932")
+    )%>% 
+    pivot_wider(
+      names_from = X1,
+      values_from = X2
+    )
+}
+
+## ファイルの読み込み関数, 警告が出るけれども問題なし
+load_tapdata <- function(path){
+  path %>% 
+    import_data() %>% 
+    arrange_data()
+}
+
+## coordinate情報を得る
+load_coorddata <- function(path){
+  ObjectNum <- path %>% get_objnum()
+  
+  .colname <- c("Coordinate_x", "Coordinate_y", "Direction_x", "Direction_y", "Text", "Velocity")
+  
+  dat <-
+    path %>% 
+    import_coorddata() %>% 
+    select(3, 5, 8, 10, 12, 14) %>% 
+    set_names(.colname) %>% 
+    rowid_to_column("session") %>% 
+    mutate(session = ceiling(session / ObjectNum)) %>% 
+    mutate_at(vars(!contains("Text")), as.numeric)
+  
+  return(dat)
+}
+
+## 一括でやる
+add_tap_coordfile <- function(folder){
+  for(testname in c("tmt1", "tmt2")){
+    path_file <-
+      sort_filepath(folder, testname)
+    
+    dat_tap <-
+      path_file %>% 
+      load_tapdata()
+    
+    .out <-
+      str_remove(path_file, ".csv") %>% 
+      str_c("_tapdata.csv")
+    
+    write_csv(dat_tap, .out)
+    
+    dat_coord <-
+      path_file %>% 
+      load_coorddata()
+    
+    .out <-
+      str_remove(path_file, ".csv") %>% 
+      str_c("_coorddata.csv")
+    
+    write_csv(dat_coord, .out)
+  }
+  
+  ## --内部関数--
+  get_objnum <- function(path){
+    path %>% 
+      load_basicinfo() %>% 
+      .$ObjectNum %>% 
+      as.numeric()
+  }
+  
+  import_coorddata <- function(path){
+    path %>% 
+      read_csv(
+        skip = 31, 
+        col_names = FALSE,
+        locale = readr::locale(encoding = "cp932")
+      ) %>% 
+      filter(X1 == "Coordinate") %>% 
+      select(1:14)
+  }
+}
+
+import_data <- function(path){
+  path %>% 
+    read_csv(
+      skip = 31, 
+      col_names = FALSE,
+      locale = readr::locale(encoding = "cp932")
+    ) %>% 
+    filter(X1 == "DownTime") 
+}
+
+arrange_name <- function(data){
+  data %>% 
+    select(seq(1, ncol(.), by = 2)) %>% 
+    select_if(is.character) %>% 
+    .[1, 1:10] %>% 
+    unlist() %>% 
+    unname() %>% 
+    c(., "TouchCoordinate_x", "TouchCoordinate_y")
+}
+
+arrange_data <- function(data){
+  data %>% 
+    select(c(seq(2, 20, by = 2), 23, 25)) %>%  
+    set_names(data %>% arrange_name()) %>% 
+    select(!contains("blank")) %>% 
+    rowid_to_column("session")
+}
+
