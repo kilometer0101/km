@@ -53,6 +53,16 @@ add_tap_coordfile <- function(folder){
     path_file <-
       sort_filepath(folder, testname)
     
+    dat_info <-
+      path_file %>% 
+      load_basicinfo()
+      
+    .out <-
+      str_remove(path_file, ".csv") %>% 
+      str_c("_testinfo.csv")
+    
+    write_csv(dat_info, .out)
+    
     dat_tap <-
       path_file %>% 
       load_tapdata()
