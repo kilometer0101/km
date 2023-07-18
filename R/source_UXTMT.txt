@@ -1,90 +1,118 @@
+require("readr")
+require("stringr")
+require("magrittr")
+require("tidyr")
+require("dplyr")
+require("rlang")
+require("tibble")
+require("dplyr")
 
-## フォルダからfilepathを探す
-sort_filepath <- function(folder, testname){
-  folder %>% 
-    list.files(
-      pattern = str_c(testname, ".csv"), 
-      full.names = TRUE
-    )
-}
-
-## テストの情報を得る
-load_basicinfo <- function(path){
-  path %>% 
-    read_csv(
-      n_max = 30, 
-      col_names = FALSE,
-      locale = readr::locale(encoding = "cp932")
-    )%>% 
-    pivot_wider(
-      names_from = X1,
-      values_from = X2
-    )
-}
-
-## ファイルの読み込み関数, 警告が出るけれども問題なし
-load_tapdata <- function(path){
-  path %>% 
-    import_data() %>% 
-    arrange_data()
-}
-
-## coordinate情報を得る
-load_coorddata <- function(path){
-  ObjectNum <- path %>% get_objnum()
-  
-  .colname <- c("Coordinate_x", "Coordinate_y", "Direction_x", "Direction_y", "Text", "Velocity")
-  
-  dat <-
-    path %>% 
-    import_coorddata() %>% 
-    select(3, 5, 8, 10, 12, 14) %>% 
-    set_names(.colname) %>% 
-    rowid_to_column("session") %>% 
-    mutate(session = ceiling(session / ObjectNum)) %>% 
-    mutate_at(vars(!contains("Text")), as.numeric)
-  
-  return(dat)
-}
-
-## 一括でやる
-add_tap_coordfile <- function(folder){
+## 指定フォルダのデータを整形した個別ファイルを出力する
+extract_datafile <- function(folder){
   for(testname in c("tmt1", "tmt2")){
+    
+    ## pathの取得
     path_file <-
       sort_filepath(folder, testname)
     
+    ## session infoの整形と出力   
     dat_info <-
       path_file %>% 
       load_basicinfo()
-      
+    
     .out <-
-      str_remove(path_file, ".csv") %>% 
-      str_c("_testinfo.csv")
+      stringr::str_remove(path_file, ".csv") %>% 
+      stringr::str_c("_testinfo.csv")
     
-    write_csv(dat_info, .out)
+    readr::write_csv(dat_info, .out)
     
+    ## tap関連データの整形と出力
     dat_tap <-
       path_file %>% 
       load_tapdata()
     
     .out <-
-      str_remove(path_file, ".csv") %>% 
-      str_c("_tapdata.csv")
+      stringr::str_remove(path_file, ".csv") %>% 
+      stringr::str_c("_tapdata.csv")
     
-    write_csv(dat_tap, .out)
+    readr::write_csv(dat_tap, .out)
     
+    ## coord関連データの整形と出力
     dat_coord <-
       path_file %>% 
       load_coorddata()
     
     .out <-
-      str_remove(path_file, ".csv") %>% 
-      str_c("_coorddata.csv")
+      stringr::str_remove(path_file, ".csv") %>% 
+      stringr::str_c("_coorddata.csv")
     
-    write_csv(dat_coord, .out)
+    readr::write_csv(dat_coord, .out)
+    
+    ## Mahakanobis Distanceの計算
+    dat_mahaD2 <-
+      dat_coord %>% 
+      coord_mahaD()
+    
+    .out <-
+      stringr::str_remove(path_file, ".csv") %>% 
+      stringr::str_c("_coorddata_mahaD.csv")
+    
+    readr::write_csv(dat_mahaD2, .out)
+    
   }
   
+  ##########################
   ## --内部関数--
+  ##########################  
+  
+  ## フォルダからfilepathを探す
+  sort_filepath <- function(folder, testname){
+    folder %>% 
+      list.files(
+        pattern = str_c(testname, ".csv"), 
+        full.names = TRUE
+      )
+  }
+  
+  ## テストの情報を得る
+  load_basicinfo <- function(path){
+    path %>% 
+      readr::read_csv(
+        n_max = 30, 
+        col_names = FALSE,
+        locale = readr::locale(encoding = "cp932")
+      )%>% 
+      tidyr::pivot_wider(
+        names_from = X1,
+        values_from = X2
+      )
+  }
+  
+  ## ファイルの読み込み関数, 警告が出るけれども問題なし
+  load_tapdata <- function(path){
+    path %>% 
+      import_data() %>% 
+      arrange_data()
+  }
+  
+  ## coordinate情報を得る
+  load_coorddata <- function(path){
+    ObjectNum <- path %>% get_objnum()
+    
+    .colname <- c("Coordinate_x", "Coordinate_y", "Direction_x", "Direction_y", "Text", "Velocity")
+    
+    dat <-
+      path %>% 
+      import_coorddata() %>% 
+      dplyr::select(3, 5, 8, 10, 12, 14) %>% 
+      rlang::set_names(.colname) %>% 
+      tibble::rowid_to_column("session") %>% 
+      dplyr::mutate(session = ceiling(session / ObjectNum)) %>% 
+      dplyr::mutate_at(vars(!contains("Text")), as.numeric)
+    
+    return(dat)
+  }
+  
   get_objnum <- function(path){
     path %>% 
       load_basicinfo() %>% 
@@ -94,30 +122,30 @@ add_tap_coordfile <- function(folder){
   
   import_coorddata <- function(path){
     path %>% 
-      read_csv(
+      readr::read_csv(
         skip = 31, 
         col_names = FALSE,
         locale = readr::locale(encoding = "cp932")
       ) %>% 
-      filter(X1 == "Coordinate") %>% 
-      select(1:14)
+      dplyr::filter(X1 == "Coordinate") %>% 
+      dplyr::select(1:14)
   }
 }
 
 import_data <- function(path){
   path %>% 
-    read_csv(
+    raedr::read_csv(
       skip = 31, 
       col_names = FALSE,
       locale = readr::locale(encoding = "cp932")
     ) %>% 
-    filter(X1 == "DownTime") 
+    dplyr::filter(X1 == "DownTime") 
 }
 
 arrange_name <- function(data){
   data %>% 
-    select(seq(1, ncol(.), by = 2)) %>% 
-    select_if(is.character) %>% 
+    dplyr::select(seq(1, ncol(.), by = 2)) %>% 
+    dplyr::select_if(is.character) %>% 
     .[1, 1:10] %>% 
     unlist() %>% 
     unname() %>% 
@@ -126,9 +154,43 @@ arrange_name <- function(data){
 
 arrange_data <- function(data){
   data %>% 
-    select(c(seq(2, 20, by = 2), 23, 25)) %>%  
-    set_names(data %>% arrange_name()) %>% 
-    select(!contains("blank")) %>% 
-    rowid_to_column("session")
+    dplyr::select(c(seq(2, 20, by = 2), 23, 25)) %>%  
+    rlang::set_names(data %>% arrange_name()) %>% 
+    dplyr::select(!contains("blank")) %>% 
+    tibble::rowid_to_column("session")
+}
+
+
+
+nest_for_mahaD <- function(data){
+  data %>%
+    dplyr::select(session, Text, Coordinate_x, Coordinate_y) %>% 
+    dplyr::group_nest(session, Text) %>% 
+    dplyr::rename(coord = data) %>% 
+    dplyr::left_join(
+      data %>% 
+        dplyr::select(session, Text, Coordinate_x, Coordinate_y) %>% 
+        dplyr::group_nest(session),
+      by = "session") %>% 
+    dplyr::mutate(data = map2(
+      data, Text,
+      ~ dplyr::filter(.x, Text != .y) %>% 
+        dplyr::select(!Text)
+    )
+    )
+}
+
+coord_mahaD <- function(data){
+  data %>%
+    nest_for_mahaD() %>% 
+    dplyr::mutate(mahaD2 = map2_dbl(
+      coord, data,
+      ~ stats::mahalanobis(
+        .x,
+        dplyr::summarise_all(.y, mean) %>% unlist(),
+        cov(.y))
+    )
+    ) %>% 
+    dplyr::select(!c(coord, data))
 }
 
