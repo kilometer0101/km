@@ -134,7 +134,7 @@ extract_datafile <- function(folder){
 
 import_data <- function(path){
   path %>% 
-    raedr::read_csv(
+    readr::read_csv(
       skip = 31, 
       col_names = FALSE,
       locale = readr::locale(encoding = "cp932")
