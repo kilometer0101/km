@@ -6,6 +6,7 @@ require("dplyr")
 require("rlang")
 require("tibble")
 require("dplyr")
+require("purrr")
 
 ## 指定フォルダのデータを整形した個別ファイルを出力する
 extract_datafile <- function(folder){
@@ -172,7 +173,7 @@ nest_for_mahaD <- function(data){
         dplyr::select(session, Text, Coordinate_x, Coordinate_y) %>% 
         dplyr::group_nest(session),
       by = "session") %>% 
-    dplyr::mutate(data = map2(
+    dplyr::mutate(data = purrr::map2(
       data, Text,
       ~ dplyr::filter(.x, Text != .y) %>% 
         dplyr::select(!Text)
@@ -183,7 +184,7 @@ nest_for_mahaD <- function(data){
 coord_mahaD <- function(data){
   data %>%
     nest_for_mahaD() %>% 
-    dplyr::mutate(mahaD2 = map2_dbl(
+    dplyr::mutate(mahaD2 = purrr::map2_dbl(
       coord, data,
       ~ stats::mahalanobis(
         .x,
@@ -193,4 +194,3 @@ coord_mahaD <- function(data){
     ) %>% 
     dplyr::select(!c(coord, data))
 }
-
