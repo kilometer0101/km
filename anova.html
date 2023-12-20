@@ -484,6 +484,30 @@ df_for_aov %&gt;%
 ## Residuals   120 14867257  123894                     
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>尚、<strong>比較する水準間でデータ数が揃っている場合はどの方法を使っても結果に差が出ません</strong>。が、だからといって積極的にtype
+Iを使う理由はありません。</p>
+<pre class="r"><code>df_for_aov_sample &lt;-
+  df_for_aov %&gt;% 
+  group_by(species) %&gt;% 
+  sample_n(size = 5)
+
+df_for_aov_sample %&gt;% 
+  aov(y ~ x + species, data = .) %&gt;% 
+  summary()
+##             Df Sum Sq Mean Sq F value Pr(&gt;F)  
+## x            1 532857  532857   3.797 0.0924 .
+## species      1 120784  120784   0.861 0.3844  
+## Residuals    7 982359  140337                 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+
+df_for_aov_sample %&gt;% 
+  aov(y ~ species + x, data = .) %&gt;% 
+  summary()
+##             Df Sum Sq Mean Sq F value Pr(&gt;F)
+## species      1 361000  361000   2.572  0.153
+## x            1 292641  292641   2.085  0.192
+## Residuals    7 982359  140337</code></pre>
 <p><strong>Type
 II</strong>を用いる<code>car::Anova()</code>関数ではこの問題は解消しています。</p>
 <pre class="r"><code>df_for_aov %&gt;%
@@ -550,7 +574,21 @@ II</strong>と<strong>III</strong>のどちらを採用するべきか、につ�
 II</strong>で十分という考えです。多くのソフトでは<strong>Type
 III</strong>を採用しているそうなので、他のソフトウェアの出力と一意させたい場合には<strong>Type
 III</strong>で実行するのが良いかもしれません。</p>
+<div id="webで参照できるサイト" class="section level3">
+<h3>Webで参照できるサイト</h3>
+<ul>
+<li><a href="https://cochineal19.hatenablog.com/entry/2021/02/23/005124">【統計】共分散分析（ANCOVA）</a></li>
+<li><a href="https://qiita.com/tabintone/items/6327757450896636155a">分散分析の平方和のタイプについてまとめた</a></li>
+<li><a href="https://www.datanovia.com/en/lessons/ancova-in-r/">ANCOVA
+in R</a>
+ここでは<code>rstatix::anova_test()</code>関数が紹介されています(type
+IIです)。 -<a href="https://www.statisticalaid.com/ancova-using-r/">Analysis of
+Covariance (ANCOVA) using R</a>
+これも<code>rstatix</code>パッケージを使っています。ANCOVA(説明変数に連続変数を持つANOVAのこと)ではtpye
+IIIを推奨と書いてありますが、連続変数を含むかどうかではなく交互作用を持つ場合にどうするか、が重要です。</li>
+</ul>
 <p><br> <br> <br></p>
+</div>
 </div>
 
 
