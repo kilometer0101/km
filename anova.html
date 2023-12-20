@@ -357,6 +357,9 @@ display: none;
 
 <div id="環境設定" class="section level2">
 <h2>環境設定</h2>
+<p>carパッケージがインストールされていない場合、インストールして下さい。</p>
+<pre class="r"><code>install.packages(&quot;car&quot;)</code></pre>
+<p>パッケージを読み込む順番ですがtidyverseとのコンフリクトが生じますので、car→tidyverseの順が安全です。もしくは<code>library(car)</code>は読み込まずに、<code>car::Anova()</code>という形式で関数を個別に呼び出すのもおすすめです。</p>
 <pre class="r"><code>library(car)
 library(palmerpenguins)
 library(tidyverse)</code></pre>
