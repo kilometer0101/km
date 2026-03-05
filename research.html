@@ -391,18 +391,30 @@ Scholar</a><br />
 <p>
 「心が躍る」「目は口ほどに物を言う」といった慣用句がありますが私たちの動作や姿勢などの身体表現は心理的な内部状態（感情、意図、動機、意思など）と強く結びついています。私たちは心的状態に基づいて行動の様式を変容させ、また他者の行動からその心的状態を推定することができ、この機能は社会的コミュニケーションにおいて核となっています。従って多様で複雑な行動表現の全貌を網羅的・定量的に解析する手段が提供されることにより、コミュニケーションダイナミクスの包括的な記述や、社会脳など神経基盤の解明において有用な貢献となると期待されます。我々は、霊長類の身体運動情報を3Dモーショントラッキングにより取得し、その時系列に内在する行動を構成する「単語」や「文法」をデータ駆動に推定する教師なし学習アルゴリズム
 SyntacticMotionParser (SMP)
-を開発しました。これは連続した文字列から意味単位である形態素や構文構造を探索する自然言語処理と対照可能なアルゴリズムです。2種類の霊長類の全身運動をSMPを用いて解析した結果を論文にまとめて出版しました(論文1-1)。この技術を基盤に、動物の社会行動解析や臨床における当事者の行動データ分析への応用を展開しています。
+を開発しました。これは連続した文字列から意味単位である形態素や構文構造を探索する自然言語処理と対照可能なアルゴリズムです。2種類の霊長類の全身運動をSMPを用いて解析した結果を論文にまとめて出版しました(論文1-1,
+proceedings1-1)。この技術を基盤に、動物の社会行動解析や臨床における当事者の行動データ分析への応用を展開しています。
+</p>
+<p>
+電気通信大学の<a href="https://hp.naka-lab.org/">中村友昭先生</a>の主導で、コアとなるアルゴリズムに乱択化フーリエ特徴(RFF)を組み込むことで計算速度が高速化しました(proceedings2-2)。さらに、高速化したアルゴリズムを用い、ヒトの動作を比較し、習熟度を可視化することに成功しました。
 </p>
 <ul>
 <li><p><strong>論文1-1：Unsupervised decomposition of natural monkey
 behavior into a sequence of motion motifs</strong><br />
 <u><strong>K. Mimura</strong></u>, J. Matsumoto, D. Mochihashi, T.
-Nakamura, H. Nishijo, M. Higuchi, T. Hirabayashi, T. Minamimoto, (2023)
+Nakamura, H. Nishijo, M. Higuchi, T. Hirabayashi, T. Minamimoto, (2024)
 <em>Communications Bilogy</em> <a href="https://www.nature.com/articles/s42003-024-06786-2">[link]</a></p></li>
-<li><p><strong>proceedings：身体動作時系列の分節推移構造推定</strong><br />
+<li><p><strong>論文1-2：Sequential unsupervised motion segmentation for
+skill evaluation and comparison</strong><br />
+K. Kajiwara, I. Saito, T. Nakamura, D. Mochihashi, <u><strong>K.
+Mimura</strong></u>; IEEE Access, 13, 218055-218065 (2025)<a href="https://doi.org/10.1109/ACCESS.2025.364492">[link]</a></p></li>
+<li><p><strong>proceedings1-1：身体動作時系列の分節推移構造推定</strong><br />
 <u><strong>三村喬生</strong></u>, 中村友昭, 松本惇平, 西条寿夫,
-須原哲也, 持橋大地, 南本敬史 (2019) 第33回人工知能学会全国大会 <a href="https://www.jstage.jst.go.jp/article/pjsai/JSAI2019/0/JSAI2019_1C4J301/_pdf">[link,
-proceeding]</a></p></li>
+須原哲也, 持橋大地, 南本敬史 (2019) 第33回人工知能学会全国大会 <a href="https://www.jstage.jst.go.jp/article/pjsai/JSAI2019/0/JSAI2019_1C4J301/_pdf">[link]</a></p></li>
+<li><p><strong>proceedings2-2： Scalable Unsupervised Segmentation via
+Random Fourier Feature-based Gaussian Process</strong><br />
+I. Saito, M. Nagano, T. Nakamura, D. Mochihashi, <u><strong>K.
+Mimura</strong></u>, IECON, S69-I-TT08-2, IECON25-000290, 17 Oct. 2025
+(Madrid, Spain) <a href="https://doi.org/10.48550/arXiv.2507.10632">[link]</a></p></li>
 </ul>
 </div>
 <div id="化学遺伝学神経回路の操作" class="section level3">
